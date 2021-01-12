@@ -132,6 +132,7 @@ public class GyroMovement extends LinearOpMode {
 
     }
 
+    //Corrects Robot position to move in a straight line
     public void callGyroStraight() {;
 
         correction = checkDirection1();
