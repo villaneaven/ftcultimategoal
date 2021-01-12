@@ -104,23 +104,21 @@ public class GyroMovement extends LinearOpMode {
             //tStart = 0;
             new CurrentTime(0);
 
-           // if (new CurrentTime (5)){ //while 500 milliseconds are passing, gyro straight will initializa
-             //   callGyroStraight();
+            //TODO: while 500 milliseconds are passing, the robot will move straight
+            if (tStart <= 500 ) {
+                callGyroStraight();
 
-         //   }else{
-            //    NoDrive();
-          //  }
+              }
 
-            /*if (tStart > 500 && tStart <30000){
+
+            //TODO: Between 500 ms and 30000ms, the robot will not move.
+            if (tStart > 500 && tStart <30000){
 
                 NoDrive();
 
 
-              //rotate(-90, turningPower);
 
-
-
-            }*/
+            }
 
         }
 
