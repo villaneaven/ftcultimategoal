@@ -22,15 +22,22 @@ public class Gamepad extends LinearOpMode {
     DcMotor leftFront = null;
     DcMotor rightBack = null;
     DcMotor shooter = null;
+    DcMotor intake = null;
+    DcMotor armleft = null;
+    DcMotor armright = null;
+
+    Servo claw = null;
 
     double shootSpeed;
     double power = 1;
     double axisY;
     double axisX;
     double axisZ;
+    double armaxisY;
     double leftVal;
     double rightVal;
     double sideVal;
+
 
     /*
         double right;
@@ -62,6 +69,20 @@ public class Gamepad extends LinearOpMode {
         shooter = hardwareMap.get(DcMotor.class, "shooter");
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake.setDirection(DcMotor.Direction.REVERSE);
+
+        armleft = hardwareMap.get(DcMotor.class, "armleft");
+        armleft.setDirection(DcMotor.Direction.REVERSE);
+
+
+        armright = hardwareMap.get(DcMotor.class, "armright");
+        armright.setDirection(DcMotor.Direction.REVERSE);
+
+        claw = hardwareMap.servo.get("claw");
+
+
+
 
 
         waitForStart();
@@ -72,9 +93,9 @@ public class Gamepad extends LinearOpMode {
 
             //------Joystick Control------\\
 
-            axisY = gamepad1.left_stick_y; //slide forward and backwards
-            axisZ = gamepad1.left_stick_x; //slide left and right
-            axisX = -gamepad1.right_stick_x; //tilt left and right
+            axisY = -gamepad1.left_stick_y; //slide forward and backwards
+            axisZ = -gamepad1.left_stick_x; //slide left and right
+            axisX = gamepad1.right_stick_x; //tilt left and right
 
 
             leftVal = axisY + axisX;
@@ -91,33 +112,72 @@ public class Gamepad extends LinearOpMode {
             rightFront.setPower(rightVal + sideVal);
             rightBack.setPower(rightVal);
             rightBack.setPower(rightVal - sideVal);
-/*
-            right = gamepad1.right_stick_y;
-            left = gamepad1.left_stick_y;
-            slide = -gamepad1.left_stick_x;
 
 
-*/
+            armaxisY = -gamepad2.left_stick_y;
+
+            armleft.setPower(armaxisY);
+            armright.setPower(-armaxisY);
+
+
+
+
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
-            shootSpeed = -.74;
+            shootSpeed = -.85;
 
-
-
-
-            if (gamepad1.a) {
+            if (gamepad1.right_bumper) {
                 shootSpeed = shootSpeed + .10;
                 shooter.setPower(shootSpeed);
             }
 
-            if (gamepad1.y){
+            /*if (gamepad1.y){
                 shootSpeed = shootSpeed - .10;
                 shooter.setPower(shootSpeed);
+            }*/
+
+
+            if (gamepad1.left_bumper){
+                shooter.setPower(0);
+            }
+
+            if(gamepad1.a){
+                intake.setPower(1);
+            }
+
+            if(gamepad1.y){
+                intake.setPower(0);
+            }
+
+
+
+            if (gamepad1.dpad_up){
+                armleft.setPower(.5);
+                armright.setPower(-.5);
+
+            }else {
+                armleft.setPower(0);
+            }
+            if (gamepad1.dpad_down){
+                armleft.setPower(-.5);
+                armright.setPower(.5);
+            }else {
+                armright.setPower(0);
+            }
+
+
+
+            if (gamepad1.dpad_left){
+                claw.setPosition(.5);
+            }
+
+            if (gamepad1.dpad_right){
+                claw.setPosition(-.5);
             }
 
             if (gamepad1.b){
-                shooter.setPower(0);
+                claw.setPosition(0);
             }
 
 
