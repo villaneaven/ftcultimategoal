@@ -34,6 +34,8 @@ public class Gamepad extends LinearOpMode {
     double axisX;
     double axisZ;
     double armaxisY;
+    double intakeaxisY;
+    double intakeaxisX;
     double leftVal;
     double rightVal;
     double sideVal;
@@ -95,7 +97,7 @@ public class Gamepad extends LinearOpMode {
 
             axisY = -gamepad1.left_stick_y; //slide forward and backwards
             axisZ = -gamepad1.left_stick_x; //slide left and right
-            axisX = gamepad1.right_stick_x; //tilt left and right
+            axisX = -gamepad1.right_stick_x; //tilt left and right
 
 
             leftVal = axisY + axisX;
@@ -118,6 +120,12 @@ public class Gamepad extends LinearOpMode {
 
             armleft.setPower(armaxisY);
             armright.setPower(-armaxisY);
+
+            //intakeaxisX = -gamepad1.right_trigger;
+            intakeaxisY = gamepad1.left_trigger;
+
+            intake.setPower(intakeaxisY);
+            //intake.setPower(intakeaxisX);
 
 
 
@@ -169,16 +177,19 @@ public class Gamepad extends LinearOpMode {
 
 
             if (gamepad1.dpad_left){
-                claw.setPosition(.5);
+                claw.setPosition(-.95);
+
             }
 
             if (gamepad1.dpad_right){
-                claw.setPosition(-.5);
+                claw.setPosition(.95);
             }
 
             if (gamepad1.b){
                 claw.setPosition(0);
             }
+
+
 
 
 
