@@ -28,7 +28,8 @@ public class Gamepad extends LinearOpMode {
 
     Servo claw = null;
 
-    double shootSpeed;
+    double goalshootSpeed;
+    double stickshootSpeed;
     double power = 1;
     double axisY;
     double axisX;
@@ -116,13 +117,13 @@ public class Gamepad extends LinearOpMode {
             rightBack.setPower(rightVal - sideVal);
 
 
-            armaxisY = -gamepad2.left_stick_y;
+            armaxisY = -gamepad2.right_stick_y;
 
-            armleft.setPower(armaxisY);
-            armright.setPower(-armaxisY);
+            armleft.setPower(.4*armaxisY);
+            armright.setPower(-.4*armaxisY);
 
             //intakeaxisX = -gamepad1.right_trigger;
-            intakeaxisY = gamepad1.left_trigger;
+            intakeaxisY = gamepad1.right_trigger;
 
             intake.setPower(intakeaxisY);
             //intake.setPower(intakeaxisX);
@@ -133,22 +134,27 @@ public class Gamepad extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
-            shootSpeed = -.85;
+            goalshootSpeed = -.85;
+            stickshootSpeed = -.67;
 
-            if (gamepad1.right_bumper) {
-                shootSpeed = shootSpeed + .10;
-                shooter.setPower(shootSpeed);
+            if (gamepad2.right_bumper) {
+                shooter.setPower(goalshootSpeed);
             }
 
-            /*if (gamepad1.y){
-                shootSpeed = shootSpeed - .10;
-                shooter.setPower(shootSpeed);
-            }*/
 
-
-            if (gamepad1.left_bumper){
+            if (gamepad2.left_bumper){
                 shooter.setPower(0);
             }
+
+            if (gamepad2.a) {
+                shooter.setPower(stickshootSpeed);
+            }
+
+
+            if (gamepad2.b){
+                shooter.setPower(0);
+            }
+
 
             if(gamepad1.a){
                 intake.setPower(1);
@@ -159,33 +165,16 @@ public class Gamepad extends LinearOpMode {
             }
 
 
-
-            if (gamepad1.dpad_up){
-                armleft.setPower(.5);
-                armright.setPower(-.5);
-
-            }else {
-                armleft.setPower(0);
-            }
-            if (gamepad1.dpad_down){
-                armleft.setPower(-.5);
-                armright.setPower(.5);
-            }else {
-                armright.setPower(0);
-            }
-
-
-
-            if (gamepad1.dpad_left){
+            if (gamepad2.dpad_left){//opens
                 claw.setPosition(-.95);
 
             }
 
-            if (gamepad1.dpad_right){
+            if (gamepad2.dpad_right){//closes
                 claw.setPosition(.95);
             }
 
-            if (gamepad1.b){
+            if (gamepad2.b){
                 claw.setPosition(0);
             }
 

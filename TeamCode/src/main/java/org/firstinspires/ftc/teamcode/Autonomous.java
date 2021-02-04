@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -41,30 +42,79 @@ import org.firstinspires.ftc.robotcore.internal.android.dx.io.instructions.FourR
 import static org.firstinspires.ftc.teamcode.EasyOpenCVExample.SkystoneDeterminationPipeline.RingPosition.FOUR;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Basic: Linear OpMode", group="Linear Opmode")
-@Disabled
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous", group="Linear Opmode")
+
 public class Autonomous extends LinearOpMode {
 
-    // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftDrive = null;
-    private DcMotor rightDrive = null;
+
+
+    DcMotor leftBack = null;
+    DcMotor rightFront = null;
+    DcMotor leftFront = null;
+    DcMotor rightBack = null;
+    DcMotor shooter = null;
+    DcMotor intake = null;
+    DcMotor armleft = null;
+    DcMotor armright = null;
+
+    Servo claw = null;
+
+    double goalshootSpeed;
+    double stickshootSpeed;
+    double power = .5;
+    double axisY;
+    double axisX;
+    double axisZ;
+    double armaxisY;
+    double intakeaxisY;
+    double intakeaxisX;
+    double leftVal;
+    double rightVal;
+    double sideVal;
+
+
+    /*
+        double right;
+        double left;
+        double slide;
+    */
+
 
     @Override
     public void runOpMode() {
+
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 
-        // Most robots need the motor on one side to be reversed to drive forward
-        // Reverse the motor that runs backwards when connected directly to the battery
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftFront = hardwareMap.dcMotor.get("leftFront");
+        leftBack = hardwareMap.dcMotor.get("leftBack");
+        rightFront = hardwareMap.dcMotor.get("rightFront");
+        rightBack = hardwareMap.dcMotor.get("rightBack");
+
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        armleft = hardwareMap.get(DcMotor.class, "armleft");
+        armleft.setDirection(DcMotor.Direction.REVERSE);
+
+
+        armright = hardwareMap.get(DcMotor.class, "armright");
+        armright.setDirection(DcMotor.Direction.REVERSE);
+
+        claw = hardwareMap.servo.get("claw");
+        shooter = hardwareMap.get(DcMotor.class, "shooter");
+        shooter.setDirection(DcMotor.Direction.FORWARD);
+
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -72,13 +122,114 @@ public class Autonomous extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            DriveLeft(power);
+            sleep(600);
 
-           EasyOpenCVExample openCV = new EasyOpenCVExample();
+            NoDrive();
+            sleep(100);
 
+           DriveForward(power);
+           sleep(2500);
 
+           NoDrive();
+           sleep(10);
 
+            /*DriveLeft(power);
+            sleep(600);
 
+            NoDrive();
+            sleep(100);
+
+            DriveForward(power);
+            sleep(2380);
+
+            NoDrive();
+            sleep(10);
+
+            DriveRight(power);
+            sleep(600);
+
+            NoDrive();
+            sleep(10);
+
+            intake.setPower(1);
+            shooter.setPower(-.85);
+
+            sleep(5000);
+
+            NoDrive();
+            sleep(10);
+
+            DriveForward(power);
+            sleep(200);
+
+            NoDrive();
+            sleep(10);*/
 
         }
+
+    }
+    public void DriveForward (double power){
+
+        leftFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightFront.setPower(-power);
+        rightBack.setPower(-power);
+
+
+    }
+
+    public void DriveLeft(double power){
+
+        leftFront.setPower(-power);
+        leftBack.setPower(power);
+        rightFront.setPower(-power);
+        rightBack.setPower(power);
+    }
+
+    public void DriveBack(double power){
+
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
+    }
+
+    public void DriveRight(double power){
+
+        leftFront.setPower(power);
+        leftBack.setPower(-power);
+        rightFront.setPower(power);
+        rightBack.setPower(-power);
+    }
+
+    public void tiltLeft(double power){
+
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(-power);
+        rightBack.setPower(-power);
+    }
+    public void tiltRight(double power){
+
+        leftFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
+    }
+
+
+    public void NoDrive (){
+
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+        armright.setPower(0);
+        armleft.setPower(0);
+        intake.setPower(0);
+        shooter.setPower(0);
     }
 }
+
+

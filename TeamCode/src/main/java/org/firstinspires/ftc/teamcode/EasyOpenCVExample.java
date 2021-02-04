@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -21,23 +23,27 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * 100% accurate) method of detecting the skystone when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp
+@Autonomous
 public class EasyOpenCVExample extends LinearOpMode
 {
     DcMotor leftFront, leftBack, rightFront, rightBack;
+    DcMotor armleft;
+    DcMotor armright;
+
+    DcMotor shooter;
+    DcMotor intake;
+
+    Servo claw;
     OpenCvInternalCamera phoneCam;
     SkystoneDeterminationPipeline pipeline;
+    double power = .5;
+    boolean A = false;
 
 
     @Override
     public void runOpMode()
     {
-        /**
-         * NOTE: Many comments have been omitted from this sample for the
-         * sake of conciseness. If you're just starting out with EasyOpenCv,
-         * you should take a look at {@link InternalCamera1Example} or its
-         * webcam counterpart, {@link WebcamExample} first.
-         */
+
         leftFront = hardwareMap.dcMotor.get("leftFront");
         leftBack = hardwareMap.dcMotor.get("leftBack");
         rightFront = hardwareMap.dcMotor.get("rightFront");
@@ -50,6 +56,21 @@ public class EasyOpenCVExample extends LinearOpMode
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        armleft = hardwareMap.get(DcMotor.class, "armleft");
+        armleft.setDirection(DcMotor.Direction.REVERSE);
+
+
+        armright = hardwareMap.get(DcMotor.class, "armright");
+        armright.setDirection(DcMotor.Direction.REVERSE);
+
+        claw = hardwareMap.servo.get("claw");
+        shooter = hardwareMap.get(DcMotor.class, "shooter");
+        shooter.setDirection(DcMotor.Direction.FORWARD);
+
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake.setDirection(DcMotor.Direction.REVERSE);
+
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -74,8 +95,10 @@ public class EasyOpenCVExample extends LinearOpMode
 
         waitForStart();
 
-        while (opModeIsActive())
-        {
+        while (opModeIsActive()) {
+
+            int amountofrings = 5;
+
             telemetry.addData("Analysis", pipeline.getAnalysis());
             telemetry.addData("Position", pipeline.position);
             telemetry.update();
@@ -83,49 +106,289 @@ public class EasyOpenCVExample extends LinearOpMode
             // Don't burn CPU cycles busy-looping in this sample
             sleep(50);
 
-           if(pipeline.position == SkystoneDeterminationPipeline.RingPosition.FOUR){
-               DriveForward(1);
-           }else if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.ONE){
+            if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.FOUR && A == false) {
 
-           }else if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.NONE){
+                amountofrings = 4;
+                A = true;
 
-           }
+                if (amountofrings == 4 && A == true){
+
+                    DriveLeft(power);
+                    sleep(600);
+
+                    NoDrive();
+                    sleep(100);
+
+                    DriveForward(power);
+                    sleep(3950);
+
+                    NoDrive();
+                    sleep(100);
+
+                    /*moved up to half way
+
+                    armleft.setPower(.45);
+                    armright.setPower(-.45);
+                    sleep(500);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //moved wobble out of the way
+
+                    intake.setPower(1);
+                    shooter.setPower(85);
+                    sleep(3000);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //rings have been shot
+
+                    DriveForward(power);
+                    sleep(1500);
+
+                    NoDrive();
+                    sleep(100);
+
+
+                     */
+
+                    DriveRight(power);
+                    sleep(1900);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //up to the third box
+
+                    tiltLeft(power);
+                    sleep(1900);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //back facing third box
+
+                    armleft.setPower(.45);
+                    armright.setPower(-.45);
+                    sleep(350);
+
+                    NoDrive();
+                    sleep(10);
+
+                    claw.setPosition(-.95);
+                    sleep(1000);
+
+                    //arm is raised and wobble has been dropped
+
+                    DriveForward(power);
+                    sleep(1500);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //robot is parked
+
+                }
+
+
+            }
+
+            if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.ONE && A == false) {
+                amountofrings = 1;
+                A = true;
+                if (amountofrings == 1 && A == true){
+
+                    DriveLeft(power);
+                    sleep(600);
+
+                    NoDrive();
+                    sleep(100);
+
+                    DriveForward(power);
+                    sleep(3280);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //moved up half way
+
+                    DriveRight(power);
+                    sleep(500);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //up to the second box
+
+                    tiltLeft(power);
+                    sleep(1900);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //back facing third box
+
+                    armleft.setPower(.45);
+                    armright.setPower(-.45);
+                    sleep(350);
+
+                    NoDrive();
+                    sleep(10);
+
+                    claw.setPosition(-.95);
+                    sleep(1000);
+
+                    //arm is raised and wobble has been dropped
+
+                    DriveForward(power);
+                    sleep(300);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //robot is parked
+                }
+
+            }
+
+            if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.NONE && A == false) {
+                amountofrings = 0;
+                A = true;
+
+                if (amountofrings == 0 && A == true){
+
+                    //shooter.setPower(1);
+
+                    DriveLeft(power);
+                    sleep(600);
+
+                    NoDrive();
+                    sleep(100);
+
+                    DriveForward(power);
+                    sleep(2635);//2500
+
+                    NoDrive();
+                    sleep(10);
+
+                    DriveRight(power);
+                    sleep(600);
+
+                    NoDrive();
+                    sleep(100);
+
+                    DriveForward(power);
+                    sleep(300);
+
+                    NoDrive();
+                    sleep(100);
+
+
+
+                    /*DriveLeft(power);
+                    sleep(600);
+
+                    NoDrive();
+                    sleep(100);
+
+                    DriveForward(power);
+                    sleep(2600);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //moved up half way
+
+                    DriveRight(power);
+                    sleep(1900);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //up to the second box
+
+                    tiltLeft(power);
+                    sleep(1900);
+
+                    NoDrive();
+                    sleep(100);
+
+                    //back facing first box
+
+                    armleft.setPower(.45);
+                    armright.setPower(-.45);
+                    sleep(350);
+
+                    NoDrive();
+                    sleep(10);
+
+                    claw.setPosition(-.95);
+                    sleep(1000);
+
+                    //arm is raised and wobble has been dropped
+
+
+                    NoDrive();
+                    sleep(100);
+
+                    //robot is parked*/
+                }
+            }
+
 
         }
     }
     public void DriveForward (double power){
 
-        leftFront.setPower(power);
-        leftBack.setPower(power);
-        rightFront.setPower(power);
-        rightBack.setPower(power);
+        leftFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightFront.setPower(-power);
+        rightBack.setPower(-power);
 
 
     }
 
     public void DriveLeft(double power){
 
-        leftFront.setPower(power);
-        leftBack.setPower(-power);
+        leftFront.setPower(-power);
+        leftBack.setPower(power);
         rightFront.setPower(-power);
         rightBack.setPower(power);
     }
 
     public void DriveBack(double power){
 
-        leftFront.setPower(-power);
-        leftBack.setPower(-power);
-        rightFront.setPower(-power);
-        rightBack.setPower(-power);
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
     }
 
     public void DriveRight(double power){
 
-        leftFront.setPower(-power);
-        leftBack.setPower(power);
+        leftFront.setPower(power);
+        leftBack.setPower(-power);
         rightFront.setPower(power);
         rightBack.setPower(-power);
     }
+
+    public void tiltLeft(double power){
+
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(-power);
+        rightBack.setPower(-power);
+    }
+    public void tiltRight(double power){
+
+        leftFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
+    }
+
 
     public void NoDrive (){
 
@@ -133,6 +396,14 @@ public class EasyOpenCVExample extends LinearOpMode
         leftBack.setPower(0);
         rightFront.setPower(0);
         rightBack.setPower(0);
+        armright.setPower(0);
+        armleft.setPower(0);
+
+    }
+
+    public void shootStuff(){
+        intake.setPower(0);
+        shooter.setPower(0);
     }
 
     public static class SkystoneDeterminationPipeline extends OpenCvPipeline
