@@ -16,7 +16,6 @@ public class Gamepad extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
-
     DcMotor leftBack = null;
     DcMotor rightFront = null;
     DcMotor leftFront = null;
@@ -41,21 +40,17 @@ public class Gamepad extends LinearOpMode {
     double rightVal;
     double sideVal;
 
-
     /*
         double right;
         double left;
         double slide;
     */
 
-
     @Override
     public void runOpMode() {
 
-
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-
 
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         leftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -84,10 +79,6 @@ public class Gamepad extends LinearOpMode {
 
         claw = hardwareMap.servo.get("claw");
 
-
-
-
-
         waitForStart();
         runtime.reset();
 
@@ -100,12 +91,9 @@ public class Gamepad extends LinearOpMode {
             axisZ = -gamepad1.left_stick_x; //slide left and right
             axisX = -gamepad1.right_stick_x; //tilt left and right
 
-
             leftVal = axisY + axisX;
             rightVal = axisY - axisX;
             sideVal = axisZ;
-
-
 
             leftFront.setPower(leftVal);
             leftFront.setPower(leftVal + sideVal);
@@ -115,7 +103,6 @@ public class Gamepad extends LinearOpMode {
             rightFront.setPower(rightVal + sideVal);
             rightBack.setPower(rightVal);
             rightBack.setPower(rightVal - sideVal);
-
 
             armaxisY = -gamepad2.right_stick_y;
 
@@ -127,9 +114,6 @@ public class Gamepad extends LinearOpMode {
 
             intake.setPower(intakeaxisY);
             //intake.setPower(intakeaxisX);
-
-
-
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();

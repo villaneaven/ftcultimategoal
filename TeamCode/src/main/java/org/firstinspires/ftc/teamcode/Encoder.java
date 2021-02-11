@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -7,19 +6,21 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
-
 
 @Autonomous(name="Encoder", group="Linear Opmode")
 //@Disabled
 public class Encoder extends LinearOpMode {
 
+    private ElapsedTime runtime = new ElapsedTime();
+
     DcMotor leftBack = null;
     DcMotor rightFront = null;
     DcMotor leftFront = null;
     DcMotor rightBack = null;
+
+
+
     DcMotor shooter = null;
     DcMotor intake = null;
     DcMotor armleft = null;
@@ -27,9 +28,11 @@ public class Encoder extends LinearOpMode {
 
     Servo claw = null;
 
+    static final int MOTOR_TICK_COUNTS = 384;
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
+
         leftFront = hardwareMap.dcMotor.get("leftFront");
         leftBack = hardwareMap.dcMotor.get("leftBack");
         rightFront = hardwareMap.dcMotor.get("rightFront");
@@ -38,15 +41,15 @@ public class Encoder extends LinearOpMode {
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
 
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         armleft = hardwareMap.get(DcMotor.class, "armleft");
         armleft.setDirection(DcMotor.Direction.REVERSE);
@@ -64,42 +67,45 @@ public class Encoder extends LinearOpMode {
 
 
         waitForStart();
+        runtime.reset();
 
-        double GOBILDA_TICKS_PER_REV = 103.6;
-        double power = .5;
-
-        DriveForwardDistance(power, 1000);
+        while (opModeIsActive()) {
 
 
+        //drive 18 inches
+        double circumference = 3.14*3.75; // pi * diameter
+        double rotationsNeeded = 18/circumference;
+        int encoderDrivingTarget = (int)(rotationsNeeded*384);
+
+        leftFront.setTargetPosition(encoderDrivingTarget);
+        leftBack.setTargetPosition(encoderDrivingTarget);
+        rightBack.setTargetPosition(encoderDrivingTarget);
+        rightFront.setTargetPosition(encoderDrivingTarget);
+
+        leftFront.setPower(-.2);
+        leftBack.setPower(-.2);
+        rightFront.setPower(-.2);
+        rightBack.setPower(-.2);
 
 
-    }
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-    public void DriveForwardDistance(double power, int distance){
 
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        while (opModeIsActive() && leftFront.isBusy()){
 
-        leftFront.setTargetPosition(-distance);
-        leftBack.setTargetPosition(-distance);
-        rightFront.setTargetPosition(-distance);
-        rightBack.setTargetPosition(-distance);
-
-        while (leftFront.isBusy() && leftBack.isBusy() && rightFront.isBusy() && rightBack.isBusy()){
-
-            //wait for target position is reached
-
+            telemetry.addData("Path", "Driving 18 inches");
+            telemetry.update();
         }
 
-        NoDrive();
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
 
-
+     }
     }
 
     public void DriveForward (double power){

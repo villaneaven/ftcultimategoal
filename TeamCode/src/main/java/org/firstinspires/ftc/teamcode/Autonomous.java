@@ -62,7 +62,13 @@ public class Autonomous extends LinearOpMode {
 
     double goalshootSpeed;
     double stickshootSpeed;
+
+
+
     double power = .5;
+
+
+
     double axisY;
     double axisX;
     double axisZ;
