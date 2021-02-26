@@ -7,26 +7,15 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+import org.openftc.easyopencv.OpenCvInternalCamera;
 
-@Autonomous(name="Encoder", group="Linear Opmode")
+@Autonomous(name="EncoderOfficial", group="Linear Opmode")
 @Disabled
-public class Encoder extends LinearOpMode {
+public class EncoderOfficial extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    DcMotor leftBack = null;
-    DcMotor rightFront = null;
-    DcMotor leftFront = null;
-    DcMotor rightBack = null;
-
-
-
-    DcMotor shooter = null;
-    DcMotor intake = null;
-    DcMotor armleft = null;
-    DcMotor armright = null;
-
-    Servo claw = null;
+    DcMotor leftFront, leftBack, rightFront, rightBack, armleft, armright, shooter, intake;
 
     static final int MOTOR_TICK_COUNTS = 530;
 
@@ -58,7 +47,6 @@ public class Encoder extends LinearOpMode {
         armright = hardwareMap.get(DcMotor.class, "armright");
         armright.setDirection(DcMotor.Direction.REVERSE);
 
-        claw = hardwareMap.servo.get("claw");
         shooter = hardwareMap.get(DcMotor.class, "shooter");
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
@@ -69,32 +57,35 @@ public class Encoder extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+        Encoders(.5, 20);
+
+    }
+
+    public void Encoders (double power, double distance){
+
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        //drive 18 inches
-        double circumference = 3.14*3.75; // pi * diameter
-        double rotationsNeeded = 18/circumference;
-        int encoderDrivingTarget = (int)(rotationsNeeded*530);
+        double circumference = 3.14*3.75; // pi * diameter of wheel
+        double rotationsNeeded = distance/circumference;
+        int encoderDrivingTarget = (int)(rotationsNeeded*MOTOR_TICK_COUNTS);
 
         leftFront.setTargetPosition(encoderDrivingTarget);
         leftBack.setTargetPosition(encoderDrivingTarget);
         rightBack.setTargetPosition(encoderDrivingTarget);
         rightFront.setTargetPosition(encoderDrivingTarget);
 
-        leftFront.setPower(-.2);
-        leftBack.setPower(-.2);
-        rightFront.setPower(-.2);
-        rightBack.setPower(-.2);
-
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
 
         leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
 
         while (opModeIsActive() && leftFront.isBusy()){
 
@@ -108,15 +99,16 @@ public class Encoder extends LinearOpMode {
         rightFront.setPower(0);
         rightBack.setPower(0);
 
-     }
+
+    }
 
 
     public void DriveForward (double power){
 
-        leftFront.setPower(-power);
-        leftBack.setPower(-power);
-        rightFront.setPower(-power);
-        rightBack.setPower(-power);
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
 
 
     }
@@ -125,8 +117,8 @@ public class Encoder extends LinearOpMode {
 
         leftFront.setPower(-power);
         leftBack.setPower(power);
-        rightFront.setPower(-power);
-        rightBack.setPower(power);
+        rightFront.setPower(power);
+        rightBack.setPower(-power);
     }
 
     public void DriveBack(double power){
@@ -141,24 +133,11 @@ public class Encoder extends LinearOpMode {
 
         leftFront.setPower(power);
         leftBack.setPower(-power);
-        rightFront.setPower(power);
-        rightBack.setPower(-power);
-    }
-
-    public void tiltLeft(double power){
-
-        leftFront.setPower(power);
-        leftBack.setPower(power);
         rightFront.setPower(-power);
-        rightBack.setPower(-power);
-    }
-    public void tiltRight(double power){
-
-        leftFront.setPower(-power);
-        leftBack.setPower(-power);
-        rightFront.setPower(power);
         rightBack.setPower(power);
     }
+
+
     public void NoDrive (){
 
         leftFront.setPower(0);

@@ -5,6 +5,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import java.util.Timer;
@@ -21,7 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 
 @Autonomous(name="Drive Avoid Imu", group="Exercises")
-//@Disabled
+@Disabled
 public class GyroMovement extends LinearOpMode {
     DcMotor leftFront, leftBack, rightFront, rightBack;
     BNO055IMU imu;
@@ -108,7 +109,7 @@ public class GyroMovement extends LinearOpMode {
             if (tStart <= 500 ) {
                 callGyroStraight();
 
-              }
+            }
 
 
             //TODO: Between 500 ms and 30000ms, the robot will not move.

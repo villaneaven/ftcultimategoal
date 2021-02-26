@@ -43,7 +43,7 @@ import static org.firstinspires.ftc.teamcode.EasyOpenCVExample.SkystoneDetermina
 
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous", group="Linear Opmode")
-
+@Disabled
 public class Autonomous extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();

@@ -87,7 +87,7 @@ public class Gamepad extends LinearOpMode {
 
             //------Joystick Control------\\
 
-            axisY = -gamepad1.left_stick_y; //slide forward and backwards
+            axisY = gamepad1.left_stick_y; //slide forward and backwards
             axisZ = -gamepad1.left_stick_x; //slide left and right
             axisX = -gamepad1.right_stick_x; //tilt left and right
 
@@ -100,9 +100,9 @@ public class Gamepad extends LinearOpMode {
             leftBack.setPower(leftVal);
             leftBack.setPower(leftVal - sideVal);
             rightFront.setPower(rightVal);
-            rightFront.setPower(rightVal + sideVal);
+            rightFront.setPower(rightVal - sideVal);
             rightBack.setPower(rightVal);
-            rightBack.setPower(rightVal - sideVal);
+            rightBack.setPower(rightVal + sideVal);
 
             armaxisY = -gamepad2.right_stick_y;
 
@@ -110,15 +110,16 @@ public class Gamepad extends LinearOpMode {
             armright.setPower(-.4*armaxisY);
 
             //intakeaxisX = -gamepad1.right_trigger;
-            intakeaxisY = gamepad1.right_trigger;
+            intakeaxisY = -gamepad1.right_trigger;
+            intakeaxisX= gamepad1.left_trigger;
 
             intake.setPower(intakeaxisY);
-            //intake.setPower(intakeaxisX);
+            intake.setPower(intakeaxisX);
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
-            goalshootSpeed = -.85;
+            goalshootSpeed = -.95;
             stickshootSpeed = -.67;
 
             if (gamepad2.right_bumper) {
