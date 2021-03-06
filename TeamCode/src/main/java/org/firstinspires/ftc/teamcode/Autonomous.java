@@ -43,7 +43,7 @@ import static org.firstinspires.ftc.teamcode.EasyOpenCVExample.SkystoneDetermina
 
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous", group="Linear Opmode")
-@Disabled
+//@Disabled
 public class Autonomous extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -128,7 +128,7 @@ public class Autonomous extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            DriveLeft(power);
+            DriveRight(power);
             sleep(600);
 
             NoDrive();
@@ -140,47 +140,15 @@ public class Autonomous extends LinearOpMode {
            NoDrive();
            sleep(10);
 
-            /*DriveLeft(power);
-            sleep(600);
-
-            NoDrive();
-            sleep(100);
-
-            DriveForward(power);
-            sleep(2380);
-
-            NoDrive();
-            sleep(10);
-
-            DriveRight(power);
-            sleep(600);
-
-            NoDrive();
-            sleep(10);
-
-            intake.setPower(1);
-            shooter.setPower(-.85);
-
-            sleep(5000);
-
-            NoDrive();
-            sleep(10);
-
-            DriveForward(power);
-            sleep(200);
-
-            NoDrive();
-            sleep(10);*/
-
         }
 
     }
     public void DriveForward (double power){
 
-        leftFront.setPower(-power);
-        leftBack.setPower(-power);
-        rightFront.setPower(-power);
-        rightBack.setPower(-power);
+        leftFront.setPower(power);
+        leftBack.setPower(power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
 
 
     }

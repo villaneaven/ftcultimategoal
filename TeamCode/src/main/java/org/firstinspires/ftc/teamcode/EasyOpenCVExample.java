@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.opencv.core.Core;
@@ -22,13 +23,14 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class EasyOpenCVExample extends LinearOpMode
 {
 
-    DcMotor leftFront, leftBack, rightFront, rightBack, armleft, armright, shooter, intake;
+    DcMotor leftFront, leftBack, rightFront, rightBack, shooter, intake, arm;
     Servo claw;
     OpenCvInternalCamera phoneCam;
     SkystoneDeterminationPipeline pipeline;
     boolean A = false;
     static final int MOTOR_TICK_COUNTS = 530;
-    double encoderPower = .3;
+    double encoderPower = .5;
+    double encoderRotatingPower = .3;
 
     @Override
     public void runOpMode()
@@ -52,11 +54,14 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        armleft = hardwareMap.get(DcMotor.class, "armleft");
-        armleft.setDirection(DcMotor.Direction.REVERSE);
+//        armleft = hardwareMap.get(DcMotor.class, "armleft");
+//        armleft.setDirection(DcMotor.Direction.REVERSE);
+//
+//        armright = hardwareMap.get(DcMotor.class, "armright");
+//        armright.setDirection(DcMotor.Direction.REVERSE);
 
-        armright = hardwareMap.get(DcMotor.class, "armright");
-        armright.setDirection(DcMotor.Direction.REVERSE);
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shooter = hardwareMap.get(DcMotor.class, "shooter");
         shooter.setDirection(DcMotor.Direction.FORWARD);
@@ -85,18 +90,20 @@ public class EasyOpenCVExample extends LinearOpMode
             }
         });
 
-        waitForStart();
+        telemetry.addData("avg1", pipeline.avg1);
+        telemetry.update();
 
-        //while (opModeIsActive()) {
+        waitForStart();
 
             int amountofrings;
 
             telemetry.addData("Analysis", pipeline.getAnalysis());
             telemetry.addData("Position", pipeline.position);
+            telemetry.addData("avg1", pipeline.avg1);
             telemetry.update();
 
             // Don't burn CPU cycles busy-looping in this sample
-            sleep(50);
+            sleep(2000);
 
             if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.FOUR && !A) {
 
@@ -105,9 +112,26 @@ public class EasyOpenCVExample extends LinearOpMode
 
                 if (amountofrings == 4 && A) {
 
+                    //Drive right 17 inches
 
-                    //Drive right to the furthest block
-                    EncodersRight(encoderPower, 20);
+                    EncodersRight(encoderPower, 17);
+                    EncodersForward(encoderPower, 105);
+                    EncodersLeft(encoderPower, 17);
+                    EncodersTurnLeft(encoderRotatingPower, 36);
+                    arm.setPower(.37);
+                    sleep(2000);
+                    claw.setPosition(.75);
+                    sleep(1500);
+                    arm.setPower(-.37);
+                    sleep(1500);
+                    EncodersTurnRight(encoderRotatingPower, 36);
+                    EncodersLeft(encoderPower, 20);
+                    EncodersBackwards(encoderPower, 30);
+//                    EncodersRight(encoderPower, 10);
+//                    arm.setPower(.5);
+//                    sleep(1000);
+//                    claw.setPosition(-1);
+//                    sleep(1500);
 
                 }
             }
@@ -117,9 +141,20 @@ public class EasyOpenCVExample extends LinearOpMode
                 A = true;
                 if (amountofrings == 1 && A){
 
+                    EncodersRight(encoderPower, 17);
+                    EncodersForward(encoderPower, 80);
+                    EncodersLeft(encoderPower, 17);
+                    EncodersTurnRight(encoderRotatingPower, 45);
+                    arm.setPower(.37);
+                    sleep(3000);
+                    claw.setPosition(.75);
+                    sleep(1500);
+                    arm.setPower(-.37);
+                    sleep(2000);
+                    EncodersTurnLeft(encoderRotatingPower, 45);
+                    EncodersBackwards(encoderPower, 7);
 
                 }
-
             }
 
             if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.NONE && !A) {
@@ -128,13 +163,23 @@ public class EasyOpenCVExample extends LinearOpMode
 
                 if (amountofrings == 0 && A){
 
-                    EncodersLeft(encoderPower, 20);
-
+                    EncodersRight(encoderPower, 17);
+                    EncodersForward(encoderPower, 55);
+                    EncodersLeft(encoderPower, 17);
+                    EncodersTurnRight(encoderRotatingPower, 60);
+                    arm.setPower(.37);
+                    sleep(3000);
+                    claw.setPosition(.75);
+                    sleep(1500);
+                    arm.setPower(-.37);
+                    sleep(2000);
+                    EncodersTurnLeft(encoderPower, 60);
+                    EncodersForward(encoderPower, 15);
 
                 }
             }
         }
-    //}
+
 
     public void EncodersForward (double power, double distance){
 
@@ -225,9 +270,9 @@ public class EasyOpenCVExample extends LinearOpMode
         double rotationsNeeded = distance/circumference;
         int encoderDrivingTarget = (int)(rotationsNeeded*MOTOR_TICK_COUNTS);
 
-        leftFront.setTargetPosition(encoderDrivingTarget);
+        leftFront.setTargetPosition(-encoderDrivingTarget);
         leftBack.setTargetPosition(encoderDrivingTarget);
-        rightBack.setTargetPosition(encoderDrivingTarget);
+        rightBack.setTargetPosition(-encoderDrivingTarget);
         rightFront.setTargetPosition(encoderDrivingTarget);
 
         leftFront.setPower(-power);
@@ -266,20 +311,60 @@ public class EasyOpenCVExample extends LinearOpMode
 
         leftFront.setTargetPosition(encoderDrivingTarget);
         leftBack.setTargetPosition(encoderDrivingTarget);
-        rightBack.setTargetPosition(encoderDrivingTarget);
-        rightFront.setTargetPosition(encoderDrivingTarget);
+        rightBack.setTargetPosition(-encoderDrivingTarget);
+        rightFront.setTargetPosition(-encoderDrivingTarget);
 
         leftFront.setPower(power);
         leftBack.setPower(power);
-        rightFront.setPower(0);
-        rightBack.setPower(0);
+        rightFront.setPower(-power);
+        rightBack.setPower(-power);
 
         leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (opModeIsActive() && leftFront.isBusy()){
+        while (leftFront.isBusy()){
+
+            telemetry.addData("Path", "Driving 18 inches");
+            telemetry.addData("LeftBackDistance", leftBack.getCurrentPosition());
+            telemetry.update();
+
+        }
+
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+
+    }
+    public void EncodersTurnLeft (double power, double distance){
+
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        double circumference = 3.14*3.75; // pi * diameter of wheel
+        double rotationsNeeded = distance/circumference;
+        int encoderDrivingTarget = (int)(rotationsNeeded*MOTOR_TICK_COUNTS);
+
+        leftFront.setTargetPosition(-encoderDrivingTarget);
+        leftBack.setTargetPosition(-encoderDrivingTarget);
+        rightBack.setTargetPosition(encoderDrivingTarget);
+        rightFront.setTargetPosition(encoderDrivingTarget);
+
+        leftFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightFront.setPower(power);
+        rightBack.setPower(power);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (leftFront.isBusy()){
 
             telemetry.addData("Path", "Driving 18 inches");
             telemetry.addData("LeftBackDistance", leftBack.getCurrentPosition());
@@ -390,8 +475,8 @@ public class EasyOpenCVExample extends LinearOpMode
         leftBack.setPower(0);
         rightFront.setPower(0);
         rightBack.setPower(0);
-        armright.setPower(0);
-        armleft.setPower(0);
+//        armright.setPower(0);
+//        armleft.setPower(0);
 
     }
 
@@ -421,13 +506,13 @@ public class EasyOpenCVExample extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(181,98);//changes position of box
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(210,95);//changes position of box y is left and right
 
         static final int REGION_WIDTH = 35;
         static final int REGION_HEIGHT = 25;
 
-        final int FOUR_RING_THRESHOLD = 150;
-        final int ONE_RING_THRESHOLD = 135;
+        final int FOUR_RING_THRESHOLD = 160;
+        final int ONE_RING_THRESHOLD = 140;
 
 
         Point region1_pointA = new Point(
@@ -475,10 +560,7 @@ public class EasyOpenCVExample extends LinearOpMode
         {
             inputToCb(input);
 
-
             avg1 = (int) Core.mean(region1_Cb).val[0];
-
-
 
             Imgproc.rectangle(
                     input, // Buffer to draw on
@@ -487,15 +569,25 @@ public class EasyOpenCVExample extends LinearOpMode
                     BLUE, // The color the rectangle is drawn in
                     2); // Thickness of the rectangle lines
 
+
+            //heavens original code
+//            position = RingPosition.FOUR;
+//            if (avg1 > FOUR_RING_THRESHOLD){
+//                position = RingPosition.FOUR;
+//            }else if (avg1 > ONE_RING_THRESHOLD){
+//                position = RingPosition.ONE;
+//            }else {
+//                position = RingPosition.NONE;
+//            }
+
             position = RingPosition.FOUR;
             if (avg1 > FOUR_RING_THRESHOLD){
                 position = RingPosition.FOUR;
-            }else if (avg1 > ONE_RING_THRESHOLD){
+            }else if (avg1 > ONE_RING_THRESHOLD && avg1 < FOUR_RING_THRESHOLD){
                 position = RingPosition.ONE;
-            }else {
+            }else if (avg1< ONE_RING_THRESHOLD){
                 position = RingPosition.NONE;
             }
-
 
             Imgproc.rectangle(
                     input, // Buffer to draw on

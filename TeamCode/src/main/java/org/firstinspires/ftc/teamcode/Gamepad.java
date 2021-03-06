@@ -22,8 +22,9 @@ public class Gamepad extends LinearOpMode {
     DcMotor rightBack = null;
     DcMotor shooter = null;
     DcMotor intake = null;
-    DcMotor armleft = null;
-    DcMotor armright = null;
+//    DcMotor armleft = null;
+//    DcMotor armright = null;
+    DcMotor arm = null;
 
     Servo claw = null;
 
@@ -36,6 +37,7 @@ public class Gamepad extends LinearOpMode {
     double armaxisY;
     double intakeaxisY;
     double intakeaxisX;
+    double shooterControl;
     double leftVal;
     double rightVal;
     double sideVal;
@@ -70,12 +72,15 @@ public class Gamepad extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake.setDirection(DcMotor.Direction.REVERSE);
 
-        armleft = hardwareMap.get(DcMotor.class, "armleft");
-        armleft.setDirection(DcMotor.Direction.REVERSE);
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
-        armright = hardwareMap.get(DcMotor.class, "armright");
-        armright.setDirection(DcMotor.Direction.REVERSE);
+//        armleft = hardwareMap.get(DcMotor.class, "armleft");
+//        armleft.setDirection(DcMotor.Direction.REVERSE);
+//
+//
+//        armright = hardwareMap.get(DcMotor.class, "armright");
+//        armright.setDirection(DcMotor.Direction.REVERSE);
 
         claw = hardwareMap.servo.get("claw");
 
@@ -105,13 +110,18 @@ public class Gamepad extends LinearOpMode {
             rightBack.setPower(rightVal + sideVal);
 
             armaxisY = -gamepad2.right_stick_y;
+            arm.setPower(.4*armaxisY);
 
-            armleft.setPower(.4*armaxisY);
-            armright.setPower(-.4*armaxisY);
+//            armaxisY = -gamepad2.right_stick_y;
+//
+//            armleft.setPower(.4*armaxisY);
+//            armright.setPower(-.4*armaxisY);
 
-            //intakeaxisX = -gamepad1.right_trigger;
-            intakeaxisY = -gamepad1.right_trigger;
-            intakeaxisX= gamepad1.left_trigger;
+            shooterControl = -gamepad2.right_trigger;
+            shooter.setPower(shooterControl);
+
+            intakeaxisY = -gamepad1.left_trigger;
+            intakeaxisX= gamepad1.right_trigger;
 
             intake.setPower(intakeaxisY);
             intake.setPower(intakeaxisX);
@@ -119,27 +129,29 @@ public class Gamepad extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
-            goalshootSpeed = -.95;
-            stickshootSpeed = -.67;
+            double highSpeed = .95;
+            double middleSpeed = .85;
+            double lowSpeed = -.70;
 
-            if (gamepad2.right_bumper) {
-                shooter.setPower(goalshootSpeed);
+            if (gamepad2.y) {
+                shooter.setPower(highSpeed);
             }
 
+            if (gamepad2.b){
+                shooter.setPower(middleSpeed);
+            }
+
+            if (gamepad2.a) {
+                shooter.setPower(lowSpeed);
+            }
 
             if (gamepad2.left_bumper){
                 shooter.setPower(0);
             }
 
-            if (gamepad2.a) {
-                shooter.setPower(stickshootSpeed);
-            }
-
-
             if (gamepad2.b){
                 shooter.setPower(0);
             }
-
 
             if(gamepad1.a){
                 intake.setPower(1);
@@ -149,14 +161,13 @@ public class Gamepad extends LinearOpMode {
                 intake.setPower(0);
             }
 
-
-            if (gamepad2.dpad_left){//opens
-                claw.setPosition(-.95);
+            if (gamepad2.dpad_left){//closes
+                claw.setPosition(-.75);
 
             }
 
-            if (gamepad2.dpad_right){//closes
-                claw.setPosition(.95);
+            if (gamepad2.dpad_right){//open
+                claw.setPosition(.75);
             }
 
             if (gamepad2.b){
