@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,18 +19,18 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @Autonomous
-@Disabled
-public class EasyOpenCVExample extends LinearOpMode
+public class HottestAutonomous extends LinearOpMode
 {
 
     DcMotor leftFront, leftBack, rightFront, rightBack, shooter, intake, arm;
-    Servo claw;
+    Servo claw, flick;
     OpenCvInternalCamera phoneCam;
     SkystoneDeterminationPipeline pipeline;
     boolean A = false;
     static final int MOTOR_TICK_COUNTS = 530;
-    double encoderPower = .5;
+    double encoderPower = .6;
     double encoderRotatingPower = .3;
+
 
     @Override
     public void runOpMode()
@@ -56,12 +54,6 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        armleft = hardwareMap.get(DcMotor.class, "armleft");
-//        armleft.setDirection(DcMotor.Direction.REVERSE);
-//
-//        armright = hardwareMap.get(DcMotor.class, "armright");
-//        armright.setDirection(DcMotor.Direction.REVERSE);
-
         arm = hardwareMap.get(DcMotor.class, "arm");
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -72,6 +64,7 @@ public class EasyOpenCVExample extends LinearOpMode
         intake.setDirection(DcMotor.Direction.REVERSE);
 
         claw = hardwareMap.servo.get("claw");
+        flick = hardwareMap.servo.get("flick");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -115,48 +108,96 @@ public class EasyOpenCVExample extends LinearOpMode
                 A = true;
 
                 if (amountofrings == 4 && A) {
+                    claw.setPosition(.75);
 
-                    //Drive right 17 inches
+                    EncodersLeft(encoderPower, 5);
+                    EncodersTurnLeft(encoderRotatingPower, 25);
 
-                    EncodersRight(encoderPower, 17);
-                    EncodersForward(encoderPower, 105);
                     EncodersLeft(encoderPower, 17);
-                    EncodersTurnLeft(encoderRotatingPower, 36);
-                    arm.setPower(.45);
-                    sleep(1300);
-                    claw.setPosition(-.75);//open
-                    sleep(1500);
+                    EncodersForward(encoderPower, 53);
+
+                    EncodersRight(encoderPower, 21);
+
+                    shooter.setPower(-.9);
+                    sleep(1400);
+                    flick();
+
+                    shooter.setPower(-.9);
+                    sleep(1000);
+                    flick();
+
+                    shooter.setPower(-.9);
+                    sleep(1000);
+                    flick();
+
+                    shooter.setPower(0);
+
+
+                    EncodersForward(encoderPower, 60);
+                    EncodersRight(encoderPower, 12);
+
+                    EncodersTurnRight(encoderRotatingPower, 45);
+
                     arm.setPower(-.45);
-                    sleep(1300);
-                    EncodersTurnRight(encoderRotatingPower, 36);
-                    EncodersLeft(encoderPower, 30);
-                    EncodersBackwards(encoderPower, 30);//30 to park
-//                    EncodersRight(encoderPower, 7);
-//                    arm.setPower(.5);
-//                    sleep(700);
-//                    claw.setPosition(.75);
-//                    sleep(1500);
+                    sleep(1000);
+                    NoDrive();
+                    sleep(1000);
+                    claw.setPosition(-1);//open
+                    sleep(1200);
+                    arm.setPower(.45);
+                    sleep(1000);
+
+                    EncodersTurnLeft(encoderRotatingPower, 45);
+                    EncodersLeft(encoderPower, 24);
+                    EncodersBackwards(encoderPower, 35);//30 to park
 
                 }
             }
 
             if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.ONE && !A) {
+
                 amountofrings = 1;
+
                 A = true;
                 if (amountofrings == 1 && A){
+                    claw.setPosition(.75);
 
-                    EncodersRight(encoderPower, 17);
-                    EncodersForward(encoderPower, 80);
+                    EncodersLeft(encoderPower, 5);
+                    EncodersTurnLeft(encoderRotatingPower, 25);
+
                     EncodersLeft(encoderPower, 17);
-                    EncodersTurnRight(encoderRotatingPower, 45);
-                    arm.setPower(.37);
-                    sleep(3000);
-                    claw.setPosition(-.75);
+                    EncodersForward(encoderPower, 53);
+
+                    EncodersRight(encoderPower, 21);
+
+                    shooter.setPower(-.9);
                     sleep(1500);
-                    arm.setPower(-.37);
-                    sleep(2000);
-                    EncodersTurnLeft(encoderRotatingPower, 45);
-                    EncodersBackwards(encoderPower, 7);
+                    flick();
+
+                    shooter.setPower(-.9);
+                    sleep(1000);
+                    flick();
+
+                    shooter.setPower(-.9);
+                    sleep(1000);
+                    flick();
+
+                    shooter.setPower(0);
+
+                    EncodersTurnRight(encoderRotatingPower, 25);
+                    EncodersLeft(encoderPower, 28);
+
+                    arm.setPower(-.45);
+                    sleep(1000);
+                    NoDrive();
+                    sleep(1000);
+                    claw.setPosition(-1);//open
+                    sleep(1200);
+                    arm.setPower(.45);
+                    sleep(1000);
+
+                    //EncodersTurnLeft(encoderRotatingPower, 25);
+                    EncodersRight(encoderPower, 5);
 
                 }
             }
@@ -166,19 +207,44 @@ public class EasyOpenCVExample extends LinearOpMode
                 A = true;
 
                 if (amountofrings == 0 && A){
+                    claw.setPosition(.75);
 
-                    EncodersRight(encoderPower, 17);
-                    EncodersForward(encoderPower, 55);
+                    EncodersLeft(encoderPower, 5);
+                    EncodersTurnLeft(encoderRotatingPower, 25);
+
                     EncodersLeft(encoderPower, 17);
-                    EncodersTurnRight(encoderRotatingPower, 60);
-                    arm.setPower(.37);
-                    sleep(3000);
-                    claw.setPosition(-.75);
+                    EncodersForward(encoderPower, 53);
+
+                    EncodersRight(encoderPower, 21);
+
+                    shooter.setPower(-.9);
+                    sleep(1400);
+                    flick();
+
+                    shooter.setPower(-.9);
+                    sleep(1000);
+                    flick();
+
+                    shooter.setPower(-.9);
+                    sleep(1000);
+                    flick();
+
+                    shooter.setPower(0);
+
+                    EncodersForward(encoderPower, 20);
+
+                    EncodersTurnRight(encoderRotatingPower, 45);
+
+                    arm.setPower(-.45);
+                    sleep(1000);
+                    NoDrive();
+                    sleep(1000);
+                    claw.setPosition(-1);//open
                     sleep(1500);
-                    arm.setPower(-.37);
-                    sleep(2000);
-                    EncodersTurnLeft(encoderPower, 60);
-                    EncodersForward(encoderPower, 15);
+                    arm.setPower(.45);
+                    sleep(1000);
+
+                    EncodersTurnLeft(encoderRotatingPower, 45);
 
                 }
             }
@@ -224,6 +290,13 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setPower(0);
 
     }
+
+    public void flick () {
+        flick.setPosition(.75);
+        sleep(200);
+        flick.setPosition(1);
+    }
+
     public void EncodersRight (double power, double distance){
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -263,6 +336,7 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setPower(0);
 
     }
+
     public void EncodersLeft (double power, double distance){
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -510,13 +584,13 @@ public class EasyOpenCVExample extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(168,75);//changes position of box y is left and right, the lower the number the higher it goes 210, 95
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(179,55);//changes position of box y is left and right the lower the more right it goes, the lower the number the higher it goes 210, 95
 
         static final int REGION_WIDTH = 35;
         static final int REGION_HEIGHT = 25;
 
         final int FOUR_RING_THRESHOLD = 160;
-        final int ONE_RING_THRESHOLD = 140;
+        final int ONE_RING_THRESHOLD = 140;//higher number to read none
 
 
         Point region1_pointA = new Point(

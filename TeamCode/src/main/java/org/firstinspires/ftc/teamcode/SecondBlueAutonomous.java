@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,22 +19,20 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @Autonomous
-@Disabled
-public class EasyOpenCVExample extends LinearOpMode
-{
+public class SecondBlueAutonomous extends LinearOpMode {
 
     DcMotor leftFront, leftBack, rightFront, rightBack, shooter, intake, arm;
-    Servo claw;
+    Servo claw, flick;
     OpenCvInternalCamera phoneCam;
     SkystoneDeterminationPipeline pipeline;
     boolean A = false;
     static final int MOTOR_TICK_COUNTS = 530;
-    double encoderPower = .5;
+    double encoderPower = .6;
     double encoderRotatingPower = .3;
 
+
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
 
         leftFront = hardwareMap.dcMotor.get("leftFront");
         leftBack = hardwareMap.dcMotor.get("leftBack");
@@ -56,12 +52,6 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        armleft = hardwareMap.get(DcMotor.class, "armleft");
-//        armleft.setDirection(DcMotor.Direction.REVERSE);
-//
-//        armright = hardwareMap.get(DcMotor.class, "armright");
-//        armright.setDirection(DcMotor.Direction.REVERSE);
-
         arm = hardwareMap.get(DcMotor.class, "arm");
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -72,6 +62,7 @@ public class EasyOpenCVExample extends LinearOpMode
         intake.setDirection(DcMotor.Direction.REVERSE);
 
         claw = hardwareMap.servo.get("claw");
+        flick = hardwareMap.servo.get("flick");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -83,12 +74,10 @@ public class EasyOpenCVExample extends LinearOpMode
         // landscape orientation, though.
         phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
 
-        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
+        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                phoneCam.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
+            public void onOpened() {
+                phoneCam.startStreaming(320, 240, OpenCvCameraRotation.SIDEWAYS_LEFT);
             }
         });
 
@@ -99,90 +88,32 @@ public class EasyOpenCVExample extends LinearOpMode
 
         waitForStart();
 
-            int amountofrings;
+        int amountofrings;
 
-            telemetry.addData("Analysis", pipeline.getAnalysis());
-            telemetry.addData("Position", pipeline.position);
-            telemetry.addData("avg1", pipeline.avg1);
-            telemetry.update();
+        telemetry.addData("Analysis", pipeline.getAnalysis());
+        telemetry.addData("Position", pipeline.position);
+        telemetry.addData("avg1", pipeline.avg1);
+        telemetry.update();
 
-            // Don't burn CPU cycles busy-looping in this sample
-            sleep(2000);
+        // Don't burn CPU cycles busy-looping in this sample
 
-            if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.FOUR && !A) {
 
-                amountofrings = 4;
-                A = true;
 
-                if (amountofrings == 4 && A) {
+        claw.setPosition(.9);
 
-                    //Drive right 17 inches
+        DriveLeft(encoderPower);
+        sleep(1000);
 
-                    EncodersRight(encoderPower, 17);
-                    EncodersForward(encoderPower, 105);
-                    EncodersLeft(encoderPower, 17);
-                    EncodersTurnLeft(encoderRotatingPower, 36);
-                    arm.setPower(.45);
-                    sleep(1300);
-                    claw.setPosition(-.75);//open
-                    sleep(1500);
-                    arm.setPower(-.45);
-                    sleep(1300);
-                    EncodersTurnRight(encoderRotatingPower, 36);
-                    EncodersLeft(encoderPower, 30);
-                    EncodersBackwards(encoderPower, 30);//30 to park
-//                    EncodersRight(encoderPower, 7);
-//                    arm.setPower(.5);
-//                    sleep(700);
-//                    claw.setPosition(.75);
-//                    sleep(1500);
+        NoDrive();
+        sleep(20000);
 
-                }
-            }
+        DriveForward(encoderPower);
+        sleep(2900);
 
-            if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.ONE && !A) {
-                amountofrings = 1;
-                A = true;
-                if (amountofrings == 1 && A){
+    }
 
-                    EncodersRight(encoderPower, 17);
-                    EncodersForward(encoderPower, 80);
-                    EncodersLeft(encoderPower, 17);
-                    EncodersTurnRight(encoderRotatingPower, 45);
-                    arm.setPower(.37);
-                    sleep(3000);
-                    claw.setPosition(-.75);
-                    sleep(1500);
-                    arm.setPower(-.37);
-                    sleep(2000);
-                    EncodersTurnLeft(encoderRotatingPower, 45);
-                    EncodersBackwards(encoderPower, 7);
 
-                }
-            }
 
-            if (pipeline.position == SkystoneDeterminationPipeline.RingPosition.NONE && !A) {
-                amountofrings = 0;
-                A = true;
-
-                if (amountofrings == 0 && A){
-
-                    EncodersRight(encoderPower, 17);
-                    EncodersForward(encoderPower, 55);
-                    EncodersLeft(encoderPower, 17);
-                    EncodersTurnRight(encoderRotatingPower, 60);
-                    arm.setPower(.37);
-                    sleep(3000);
-                    claw.setPosition(-.75);
-                    sleep(1500);
-                    arm.setPower(-.37);
-                    sleep(2000);
-                    EncodersTurnLeft(encoderPower, 60);
-                    EncodersForward(encoderPower, 15);
-
-                }
-            }
-        }
 
 
     public void EncodersForward (double power, double distance){
@@ -224,6 +155,13 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setPower(0);
 
     }
+
+    public void flick () {
+        flick.setPosition(.75);
+        sleep(200);
+        flick.setPosition(1);
+    }
+
     public void EncodersRight (double power, double distance){
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -263,6 +201,7 @@ public class EasyOpenCVExample extends LinearOpMode
         rightBack.setPower(0);
 
     }
+
     public void EncodersLeft (double power, double distance){
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -510,7 +449,7 @@ public class EasyOpenCVExample extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(168,75);//changes position of box y is left and right, the lower the number the higher it goes 210, 95
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(210,20);//changes position of box y is left and right the lower the more right it goes, the lower the number the higher it goes 210, 95
 
         static final int REGION_WIDTH = 35;
         static final int REGION_HEIGHT = 25;

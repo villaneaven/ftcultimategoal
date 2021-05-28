@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="WinnerGamepad", group="Linear Opmode")
+@TeleOp(name="LosersGamepad", group="Linear Opmode")
 //@Disabled
-public class Gamepad extends LinearOpMode {
+public class LosersGamepad extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -27,7 +27,6 @@ public class Gamepad extends LinearOpMode {
     DcMotor arm = null;
 
     Servo claw = null;
-    Servo flick = null;
 
     double goalshootSpeed;
     double stickshootSpeed;
@@ -36,8 +35,7 @@ public class Gamepad extends LinearOpMode {
     double axisX;
     double axisZ;
     double armaxisY;
-    double intakeaxisY;
-    double intakeaxisX;
+    double intakecontrol;
     double shooterControl;
     double leftVal;
     double rightVal;
@@ -68,7 +66,7 @@ public class Gamepad extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.REVERSE);
 
         shooter = hardwareMap.get(DcMotor.class, "shooter");
-        shooter.setDirection(DcMotor.Direction.FORWARD);
+        shooter.setDirection(DcMotor.Direction.REVERSE);
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake.setDirection(DcMotor.Direction.REVERSE);
@@ -76,19 +74,10 @@ public class Gamepad extends LinearOpMode {
         arm = hardwareMap.get(DcMotor.class, "arm");
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
-//        armleft = hardwareMap.get(DcMotor.class, "armleft");
-//        armleft.setDirection(DcMotor.Direction.REVERSE);
-//
-//
-//        armright = hardwareMap.get(DcMotor.class, "armright");
-//        armright.setDirection(DcMotor.Direction.REVERSE);
-
         claw = hardwareMap.servo.get("claw");
-        flick = hardwareMap.servo.get("flick");
 
         waitForStart();
         runtime.reset();
-
 
         while (opModeIsActive()) {
 
@@ -111,76 +100,38 @@ public class Gamepad extends LinearOpMode {
             rightBack.setPower(rightVal);
             rightBack.setPower(rightVal + sideVal);
 
-            armaxisY = -gamepad2.right_stick_y;
-            arm.setPower(.4*armaxisY);
+            shooterControl = gamepad1.right_trigger;
+            shooter.setPower(-shooterControl);
 
-//            armaxisY = -gamepad2.right_stick_y;
-//
-//            armleft.setPower(.4*armaxisY);
-//            armright.setPower(-.4*armaxisY);
-
-            shooterControl = -gamepad2.right_trigger;
-            shooter.setPower(shooterControl);
-
-            intakeaxisY = -gamepad1.left_trigger;
-            intakeaxisX= gamepad1.right_trigger;
-
-            intake.setPower(intakeaxisY);
-            intake.setPower(intakeaxisX);
+            intakecontrol = -gamepad1.left_trigger;
+            intake.setPower(-intakecontrol);
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("ShooterPower", shooter.getPower());
             telemetry.update();
 
             double highSpeed = .95;
             double middleSpeed = .75;
             double lowSpeed = -.60;
 
-//            if (gamepad2.x){
-//                shooter.setPower(0);
-//            }
-//
-//            if (gamepad2.y) {
-//                shooter.setPower(highSpeed);
-//            }
-//
-//            if (gamepad2.b){
-//                shooter.setPower(middleSpeed);
-//            }
-//
-//            if (gamepad2.a) {
-//                shooter.setPower(lowSpeed);
-//            }
+            if (gamepad2.dpad_left){//open
+                arm.setPower(.2);
+            }
 
-//            if (gamepad2.left_bumper){
-//                shooter.setPower(0);
-//            }
+            if (gamepad2.dpad_right){//close
+                arm.setPower(-.50);
+            }
 
-            if(gamepad1.a){
+            if(gamepad2.left_bumper){ //closese
+                claw.setPosition(.9);
+            }
+            if(gamepad2.right_bumper){ //opens
+                claw.setPosition(-.75);
+            }
+            if (gamepad1.b){
                 intake.setPower(1);
             }
 
-            if(gamepad1.y){
-                intake.setPower(0);
-            }
-
-            if (gamepad2.dpad_left){//closes
-                claw.setPosition(-.1);//.75
-            }
-
-            if (gamepad2.dpad_right){//open
-                claw.setPosition(.75);
-            }
-
-            if(gamepad2.a){
-                flick.setPosition(1);
-            }
-
-            if(gamepad2.b){
-                flick.setPosition(.77);
-                sleep(300);
-                flick.setPosition(1);
-            }
+            telemetry.addData("Shoot Speed", shooter.getPower());
 
         }
     }

@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -43,31 +44,20 @@ import static org.firstinspires.ftc.teamcode.EasyOpenCVExample.SkystoneDetermina
 
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Autonomous", group="Linear Opmode")
-//@Disabled
+@Disabled
 public class Autonomous extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
-
-    DcMotor leftBack = null;
-    DcMotor rightFront = null;
-    DcMotor leftFront = null;
-    DcMotor rightBack = null;
-    DcMotor shooter = null;
-    DcMotor intake = null;
-    DcMotor armleft = null;
-    DcMotor armright = null;
+    DcMotor leftFront, leftBack, rightFront, rightBack, shooter, intake, arm;
 
     Servo claw = null;
+    Servo flick = null;
 
     double goalshootSpeed;
     double stickshootSpeed;
 
-
-
     double power = .5;
-
-
 
     double axisY;
     double axisX;
@@ -79,21 +69,14 @@ public class Autonomous extends LinearOpMode {
     double rightVal;
     double sideVal;
 
-
     /*
         double right;
         double left;
         double slide;
     */
 
-
     @Override
     public void runOpMode() {
-
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
 
         leftFront = hardwareMap.dcMotor.get("leftFront");
         leftBack = hardwareMap.dcMotor.get("leftBack");
@@ -103,24 +86,32 @@ public class Autonomous extends LinearOpMode {
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
 
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        armleft = hardwareMap.get(DcMotor.class, "armleft");
-        armleft.setDirection(DcMotor.Direction.REVERSE);
+//        armleft = hardwareMap.get(DcMotor.class, "armleft");
+//        armleft.setDirection(DcMotor.Direction.REVERSE);
+//
+//        armright = hardwareMap.get(DcMotor.class, "armright");
+//        armright.setDirection(DcMotor.Direction.REVERSE);
 
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        armright = hardwareMap.get(DcMotor.class, "armright");
-        armright.setDirection(DcMotor.Direction.REVERSE);
-
-        claw = hardwareMap.servo.get("claw");
         shooter = hardwareMap.get(DcMotor.class, "shooter");
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake.setDirection(DcMotor.Direction.REVERSE);
+
+        claw = hardwareMap.servo.get("claw");
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -128,28 +119,25 @@ public class Autonomous extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            DriveRight(power);
-            sleep(600);
 
-            NoDrive();
-            sleep(100);
-
-           DriveForward(power);
-           sleep(2500);
-
-           NoDrive();
-           sleep(10);
+            DriveForward(power);
 
         }
 
     }
+
+    public void flick () {
+        flick.setPosition(.35);
+        sleep(400);
+        flick.setPosition(1);
+    }
+
     public void DriveForward (double power){
 
         leftFront.setPower(power);
         leftBack.setPower(power);
         rightFront.setPower(power);
         rightBack.setPower(power);
-
 
     }
 
@@ -199,8 +187,6 @@ public class Autonomous extends LinearOpMode {
         leftBack.setPower(0);
         rightFront.setPower(0);
         rightBack.setPower(0);
-        armright.setPower(0);
-        armleft.setPower(0);
         intake.setPower(0);
         shooter.setPower(0);
     }
